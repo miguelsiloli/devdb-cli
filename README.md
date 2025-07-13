@@ -29,14 +29,14 @@ DevDB CLI is a command-line tool that creates complete SQL Server development en
 
 ### Option 1: Direct Usage (Development Mode)
 ```bash
-git clone <this-repository>
+git clone https://github.com/miguelsiloli/devdb-cli.git
 cd sql_server_dev
 ./devdb init my-project
 ```
 
 ### Option 2: Development Installation
 ```bash
-git clone <this-repository>
+git clone https://github.com/miguelsiloli/devdb-cli.git
 cd sql_server_dev
 pip install -e .
 devdb init my-project
@@ -44,7 +44,7 @@ devdb init my-project
 
 ### Option 3: Build and Install from Source
 ```bash
-git clone <this-repository>
+git clone https://github.com/miguelsiloli/devdb-cli.git
 cd sql_server_dev
 ./build.sh
 pip install dist/devdb-cli-1.0.0.tar.gz
