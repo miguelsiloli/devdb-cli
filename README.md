@@ -1,167 +1,309 @@
-# DevDB - Automated Development Database Deployment System
+# DevDB CLI - SQL Server Development Database Scaffolding Tool
 
-This project provides a one-command solution to deploy a fresh, containerized SQL Server database for local development. It ensures a consistent, clean, and fast environment for all team members.
+DevDB CLI is a command-line tool that creates complete SQL Server development environments with a single command, similar to `airflow init`. It generates professional project scaffolding with Docker Compose, testing frameworks, AI-powered tools, and comprehensive documentation.
 
-## Prerequisites
-
-1.  **Git**: To clone the repository.
-2.  **Docker**: [Docker Desktop](https://www.docker.com/products/docker-desktop) (for Windows/macOS) or Docker Engine (for Linux) must be installed and running.
-
-## First-Time Setup
-
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repo-url>
-    cd sql_server_dev
-    ```
-
-2.  **Configure your environment:**
-    Copy the example `.env` file. This file contains your database password and is ignored by Git.
-    ```bash
-    cp .devdb/.env.example .devdb/.env
-    ```
-    **Open `.devdb/.env` in a text editor and set a strong `SA_PASSWORD`.**
-
-3.  **Make the control script executable:**
-    (On macOS and Linux)
-    ```bash
-    chmod +x devdb.sh
-    chmod +x e2e_test.sh
-    ```
-
-## How to Use
-
-All commands are run via the `./devdb.sh` script.
-
-### Core Commands
-
-| Command | Description |
-| :--- | :--- |
-| `./devdb.sh up` | Starts the SQL Server and Web GUI containers. On first run, it builds the database from the `schemas/` directory. |
-| `./devdb.sh down` | Stops and removes all containers and the network. |
-| `./devdb.sh reset` | Completely resets the environment by running `down` then `up`. Perfect for getting a clean slate. |
-| `./devdb.sh status` | Shows the current status of the running containers. |
-| `./devdb.sh help` | Displays the help message with all available commands. |
-
-### Running Tests and Queries
-
-| Command | Description |
-| :--- | :--- |
-| `./devdb.sh test all` | Executes all `.sql` files found in the `./tests` directory. The script will stop on the first failing test. |
-| `./devdb.sh test <filename.sql>` | Executes a single, specific test file from the `./tests` directory. (e.g., `./devdb.sh test test_user_creation.sql`) |
-| `./devdb.sh query "<SQL>"` | Executes an ad-hoc SQL query string directly against the database. (e.g., `./devdb.sh query "SELECT * FROM Users"`) |
-
-### End-to-End Testing
-
-Run the complete E2E test suite to validate the entire system:
+## 🚀 Quick Start
 
 ```bash
-./e2e_test.sh
+# Using the direct CLI script (development mode)
+./devdb init my-awesome-project
+
+# Create a basic project without AI tools
+./devdb init my-basic-project --template basic
+
+# Create project in specific directory
+./devdb init my-project --path ~/projects
+
+# Force overwrite existing directory
+./devdb init my-project --force
 ```
 
-This will perform:
-- Cold start (clean environment)
-- Schema deployment verification
-- User script execution
-- Test validation
-- Cleanup
+## 📋 Prerequisites
 
-### Connecting with Tools
+- **Python 3.7+** with `sqlparse` package
+- **Docker** (Docker Desktop or Docker Engine)
+- **Git** (for author information detection)
+- **Bash-compatible shell** (Linux, macOS, WSL on Windows)
 
-Once the environment is running (`./devdb.sh up`), you can connect using your favorite SQL tools:
+## 🛠️ Installation
 
-*   **Connection Details:**
-    *   **Server/Host:** `localhost`
-    *   **Port:** `1433` (or whatever you set in `.env`)
-    *   **Authentication:** SQL Server Authentication
-    *   **User:** `sa`
-    *   **Password:** The `SA_PASSWORD` you set in `.env`.
-    *   **Database:** `DevDB`
+### Option 1: Direct Usage (Development Mode)
+```bash
+git clone <this-repository>
+cd sql_server_dev
+./devdb init my-project
+```
 
-*   **Web GUI:**
-    *   Open your browser and go to **http://localhost:8081** (or the `GUI_PORT` you set).
-    *   On the login screen, use the same credentials as above, with `localhost` as the server.
+### Option 2: Development Installation
+```bash
+git clone <this-repository>
+cd sql_server_dev
+pip install -e .
+devdb init my-project
+```
 
-## How It Works
+### Option 3: Build and Install from Source
+```bash
+git clone <this-repository>
+cd sql_server_dev
+./build.sh
+pip install dist/devdb-cli-1.0.0.tar.gz
+devdb init my-project
+```
 
-*   **Schema Management**: On the first run of `./devdb.sh up`, Docker automatically executes all `.sql` files in the `./schemas` directory in alphabetical order. To add or change the schema, modify these files and run `./devdb.sh reset`.
-*   **Test Management**: The `./devdb.sh test` command uses `sqlcmd` to execute scripts from the `./tests` directory. A test is considered "failed" if the SQL script returns an error (e.g., using `THROW`).
+### Option 4: Direct Python Module (Alternative)
+```bash
+python3 src/cli.py init my-project
+```
 
-## Project Structure
+## 📖 Command Reference
+
+### `devdb init`
+
+Creates a new DevDB project with complete scaffolding.
+
+```bash
+devdb init [PROJECT_NAME] [OPTIONS]
+```
+
+**Arguments:**
+- `PROJECT_NAME` - Name of the project directory (default: `devdb-project`)
+
+**Options:**
+- `--path, -p PATH` - Parent directory for the project (default: current directory)
+- `--template, -t TEMPLATE` - Project template: `basic` or `advanced` (default: `advanced`)
+- `--force, -f` - Overwrite existing directory if it exists
+
+**Examples:**
+```bash
+# Basic usage (using direct script)
+./devdb init my-database-project
+
+# Advanced template with custom path
+./devdb init ecommerce-db --path ~/projects --template advanced
+
+# Basic template for simple projects
+./devdb init simple-db --template basic
+
+# Force overwrite existing directory
+./devdb init existing-project --force
+
+# After pip installation
+devdb init my-project --template advanced
+```
+
+### `devdb version`
+
+Shows the current version of DevDB CLI.
+
+```bash
+devdb version
+```
+
+## 🎯 Project Templates
+
+### Advanced Template (Default)
+Perfect for professional development with AI-powered tools:
+
+- ✅ Complete Docker Compose setup (SQL Server 2022 + Adminer)
+- ✅ Professional SQL schema files with examples
+- ✅ tSQLt testing framework integration
+- ✅ AI-powered SQL code polishing with Gemini
+- ✅ Comprehensive documentation generation
+- ✅ Professional SQL headers with change tracking
+- ✅ Full control script with 8+ commands
+- ✅ End-to-end testing pipeline
+
+### Basic Template
+Ideal for simple projects or teams without AI integration:
+
+- ✅ Core Docker Compose setup
+- ✅ Essential SQL schema files
+- ✅ tSQLt testing framework
+- ✅ Basic documentation
+- ✅ Control script with core commands
+- ❌ No AI tools (code polishing, docs generation)
+
+## 📁 Generated Project Structure
 
 ```
-sql_server_dev/
+my-project/
 ├── .devdb/
-│   ├── docker-compose.yml    # Docker services configuration
-│   ├── .env.example         # Environment template
-│   └── .env                 # Local environment (ignored by git)
+│   ├── docker-compose.yml      # Container orchestration
+│   ├── .env                    # Environment configuration (generated)
+│   ├── .env.example           # Environment template
+│   ├── scripts/               # AI tools (advanced template only)
+│   │   └── code_polisher.py   # SQL formatting with Gemini AI
+│   └── tSQLt/                 # Testing framework files
 ├── schemas/
-│   ├── 01_tables.sql        # Database and table creation
-│   └── 02_sprocs_and_views.sql  # Stored procedures and views
+│   ├── 01_tables.sql          # Database tables
+│   ├── 02_sprocs_and_views.sql # Procedures and views
+│   ├── 03_functions.sql       # User-defined functions
+│   ├── 04_advanced_views.sql  # Complex views
+│   ├── 05_stored_procedures.sql # Additional procedures
+│   └── 99_install_tsqlt.sql   # Testing framework setup
 ├── tests/
-│   ├── test_user_creation.sql      # User creation test
-│   └── test_product_stock_fail.sql # Failing test example
-├── devdb.sh                 # Main control script
-├── e2e_test.sh             # End-to-end test suite
-├── deployment:sequence.md   # Deployment documentation
-├── .gitignore              # Git ignore rules
-└── README.md               # This file
+│   ├── test_functions.sql     # Function tests
+│   ├── test_stored_procedures.sql # Procedure tests
+│   ├── test_views.sql         # View tests
+│   ├── test_user_creation.sql # User management tests
+│   └── test_product_stock_fail.sql # Example failure test
+├── output/
+│   ├── prod_scripts/          # Polished SQL output
+│   └── docs/                  # Generated documentation
+├── devdb.sh                   # Main control script
+├── e2e_test.sh               # End-to-end testing
+├── test_connection.sh        # Connection verification
+├── .gitignore                # Git ignore rules
+├── README.md                 # Project documentation
+└── CLAUDE.md                 # Claude Code instructions
 ```
 
-## Development Workflow
+## 🎮 Using Your Generated Project
 
-1. **Start the environment:**
-   ```bash
-   ./devdb.sh up
-   ```
+After creating a project, navigate to it and start developing:
 
-2. **Make schema changes** in the `schemas/` directory
-
-3. **Reset the environment** to apply changes:
-   ```bash
-   ./devdb.sh reset
-   ```
-
-4. **Run tests** to validate:
-   ```bash
-   ./devdb.sh test all
-   ```
-
-5. **Continue development** with confidence
-
-## Troubleshooting
-
-### Docker Permission Issues
-If you get permission denied errors:
 ```bash
-sudo usermod -aG docker $USER
-# Then restart your terminal
+cd my-project
+
+# Start the development environment
+./devdb.sh up
+
+# Run all tests
+./devdb.sh test all
+
+# Execute a specific test
+./devdb.sh test test_functions.sql
+
+# Run an ad-hoc SQL query
+./devdb.sh query "SELECT * FROM Users"
+
+# Polish SQL files with AI (advanced template)
+./devdb.sh polish tests/my_script.sql
+
+# Reset environment (clean slate)
+./devdb.sh reset
+
+# Stop everything
+./devdb.sh down
 ```
 
-### Container Health Check Failures
-- Ensure SA_PASSWORD meets complexity requirements (8+ chars, upper/lower/numbers/symbols)
-- Check Docker daemon is running: `docker info`
-- Verify system resources are available
+## 🔧 Configuration
 
-### Schema Deployment Issues
-- Check SQL syntax in schema files
-- Ensure proper GO statement placement
-- Verify file permissions in schemas directory
+### Environment Variables
 
-## Security Notes
+The generated `.devdb/.env` file contains:
 
-- The `.env` file is ignored by Git and contains sensitive information
-- Never commit database passwords to version control
-- The system is designed for development use only
-- Use strong passwords for the SA account
+```bash
+# SQL Server Configuration
+SA_PASSWORD=<auto-generated-strong-password>
+DB_PORT=1433
+GUI_PORT=8081
 
-## Contributing
+# AI Integration (advanced template)
+GEMINI_API_KEY=your-gemini-api-key-here
+AUTHOR_NAME="Your Name"
 
-1. Make changes in appropriate directories
-2. Test with `./e2e_test.sh`
-3. Update documentation as needed
-4. Follow the sequential deployment process outlined in `deployment:sequence.md`
+# Output Directories
+POLISH_OUTPUT_DIR=output/prod_scripts
+DOCS_OUTPUT_DIR=output/docs
+```
 
-## License
+### Customization
 
-This project is provided as-is for development purposes.
+1. **Database Configuration**: Edit `.devdb/.env` to change ports, passwords
+2. **AI Integration**: Add your Gemini API key for SQL polishing features
+3. **Schema Files**: Modify files in `schemas/` directory
+4. **Tests**: Add new test files to `tests/` directory
+5. **Documentation**: Update `README.md` and `CLAUDE.md` as needed
+
+## 🌐 Access Points
+
+After running `./devdb.sh up`:
+
+- **SQL Server**: `localhost:1433` (user: `sa`, password: from `.env`)
+- **Web GUI**: `http://localhost:8081` (Adminer database management)
+
+## 🧪 Testing
+
+The generated projects include comprehensive testing:
+
+- **Unit Tests**: tSQLt framework for isolated SQL testing
+- **Integration Tests**: End-to-end validation with `e2e_test.sh`
+- **Connection Tests**: Basic connectivity verification
+- **CI/CD Ready**: Structured for automated testing pipelines
+
+## 🤖 AI Features (Advanced Template)
+
+### SQL Code Polishing
+```bash
+# Polish a single file
+./devdb.sh polish tests/my_script.sql
+
+# Polish all files in a directory
+./devdb.sh polish schemas/
+```
+
+Features:
+- Professional SQL header generation with change history
+- Intelligent code formatting with `sqlparse`
+- Gemini AI-powered code optimization
+- Automatic documentation updates
+
+### Professional Headers
+Generated SQL files include standardized headers:
+
+```sql
+/***************************************************************************************************
+Procedure:          GetUserAnalytics
+Create Date:        2025-07-10
+Author:             John Doe <john@company.com>
+Description:        Retrieves comprehensive user analytics including activity metrics,
+                   purchase history, and engagement scores for business intelligence reporting.
+Call by:            [Leave empty for now]
+Affected table(s):  Users, Orders, UserActivity
+Used By:            [Leave empty for now]
+Parameter(s):       @StartDate DATETIME - Analysis start date
+                   @EndDate DATETIME - Analysis end date
+Usage:              EXEC GetUserAnalytics '2025-01-01', '2025-12-31'
+****************************************************************************************************
+SUMMARY OF CHANGES
+Date(yyyy-mm-dd)    Author              Comments
+------------------- ------------------- ------------------------------------------------------------
+2025-07-10          John Doe            Initial creation and implementation.
+***************************************************************************************************/
+```
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+**Docker not running:**
+```bash
+# Start Docker Desktop or Docker service
+sudo systemctl start docker  # Linux
+```
+
+**Port conflicts:**
+```bash
+# Change ports in .devdb/.env
+DB_PORT=1434
+GUI_PORT=8082
+```
+
+**Permission errors:**
+```bash
+# Make scripts executable
+chmod +x devdb.sh e2e_test.sh test_connection.sh
+```
+
+**Missing Python packages:**
+```bash
+# Install required packages
+pip install sqlparse google-genai
+```
+
+## 🔮 Future Features
+
+- **Migration Tools**: Schema versioning and upgrade scripts
+- **Plugin System**: Custom template and tool integration

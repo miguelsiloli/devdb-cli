@@ -1,0 +1,41 @@
+# .devdb/docker-compose.yml
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: devdb-sqlserver
+    environment:
+      ACCEPT_EULA: "${ACCEPT_EULA}"
+      SA_PASSWORD: "${SA_PASSWORD}"
+    ports:
+      - "${DB_PORT}:1433"
+    volumes:
+      # Mount schemas for auto-initialization on first run
+      - ../schemas:/docker-entrypoint-initdb.d:ro
+      # Mount tests directory for test execution
+      - ../tests:/host_tests:ro
+      # Mount tSQLt files for framework installation
+      - ./tSQLt:/tsqlt:ro
+    networks:
+      - devdb-net
+    healthcheck:
+      # This check ensures the server is fully ready to accept connections
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$SA_PASSWORD\" -Q 'SELECT 1' -C -l 30 || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 10
+      start_period: 80s
+
+  gui:
+    image: adminer
+    container_name: devdb-gui
+    ports:
+      - "${GUI_PORT}:8080"
+    networks:
+      - devdb-net
+    depends_on:
+      db:
+        condition: service_started
+
+networks:
+  devdb-net:
+    driver: bridge

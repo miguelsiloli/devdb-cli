@@ -1,0 +1,14 @@
+# Ignore the local environment file which contains secrets
+.devdb/.env
+.claude/.implementation
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore log files
+*.log
+
+# Ignore IDE files
+.vscode/
+.idea/
